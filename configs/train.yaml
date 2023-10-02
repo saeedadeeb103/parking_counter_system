@@ -1,0 +1,16 @@
+
+model:
+  num_classes: 2
+  optimizer:
+    name: SGD
+    lr: 0.0001
+    weight_decay: 2e-4
+data:
+  batch_size: 16
+  target_size: [15, 15]
+  augmentations:
+    random_horizontal_flip: true
+    random_invert: true
+    random_autocontrast: true
+  empty_folder: ../../../empty/
+  not_empty_folder: ../../../not_empty/
