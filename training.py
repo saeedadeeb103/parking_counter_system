@@ -16,11 +16,27 @@ from pytorch_lightning.callbacks import EarlyStopping
 import hydra
 from omegaconf import DictConfig
 
-# Define the paths to the "empty" and "not_empty" folders
-
-# Define the target size for your images
 
 class CustomDataset(Dataset):
+    """
+    Custom PyTorch Dataset for image data.
+
+    This dataset is designed to load and preprocess image data for training and evaluation.
+
+    Args:
+        X (numpy.ndarray): An array of image data.
+        y (numpy.ndarray): An array of corresponding labels.
+        transform (callable, optional): A function/transform to apply to the images.
+
+    Returns:
+        dict: A dictionary containing 'image' and 'label' keys.
+
+    Example:
+        transform = transforms.Compose([transforms.ToTensor()])
+        dataset = CustomDataset(X_train, y_train, transform)
+        sample = dataset[0]
+        image, label = sample['image'], sample['label']
+    """
     def __init__(self, X, y, transform=None):
         self.X = X
         self.y = y
@@ -36,6 +52,28 @@ class CustomDataset(Dataset):
         return sample
 
 class ResNet18(pl.LightningModule):
+    """
+    PyTorch Lightning model for image classification using a ResNet-18 architecture.
+
+    This model uses a pre-trained ResNet-18 model and fine-tunes it for a specific number of classes.
+
+    Args:
+        num_classes (int, optional): The number of classes in the dataset. Defaults to 2.
+        optimizer_cfg (DictConfig, optional): A Hydra configuration object for the optimizer.
+
+    Methods:
+        forward(x): Computes the forward pass of the model.
+        configure_optimizers(): Configures the optimizer for the model.
+        training_step(batch, batch_idx): Performs a training step on the model.
+        validation_step(batch, batch_idx): Performs a validation step on the model.
+        on_validation_epoch_end(): Called at the end of each validation epoch.
+        test_step(batch, batch_idx): Performs a test step on the model.
+
+    Example:
+        model = ResNet18(num_classes=2, optimizer_cfg=cfg.model.optimizer)
+        trainer.fit(model, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
+        trainer.test(model, dataloaders=test_dataloader)
+    """
     def __init__(self, num_classes=2, optimizer_cfg=None):
         super().__init__()
 
@@ -111,6 +149,20 @@ class ResNet18(pl.LightningModule):
         return {'test_loss': loss, 'test_preds': preds, 'test_targets': y}
 
 def load_and_preprocess_data(target_size, empty_folder, not_empty_folder):
+    """
+    Load and preprocess image data from the specified folders.
+
+    Args:
+        target_size (tuple): The desired image size (height, width).
+        empty_folder (str): Path to the folder containing empty images.
+        not_empty_folder (str): Path to the folder containing not empty images.
+
+    Returns:
+        X_train (numpy.ndarray): Training image data.
+        X_test (numpy.ndarray): Testing image data.
+        y_train (numpy.ndarray): Training labels.
+        y_test (numpy.ndarray): Testing labels.
+    """
     X = []
     y = []
 
